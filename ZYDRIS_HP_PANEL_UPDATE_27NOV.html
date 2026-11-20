@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZYDRIS HP | Admin</title>
+<style>
+:root{--bg:#070b15;--panel:#101a2d;--line:#2c4a73;--cyan:#65dcff;--blue:#367bff;--violet:#9a67ff;--muted:#91a6c7}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#17345a,#070b15 52%);color:#f7faff;font:15px Inter,Segoe UI,Arial,sans-serif;min-height:100vh}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.1;background-image:linear-gradient(45deg,transparent 47%,#7bdfff 49%,transparent 52%),linear-gradient(-45deg,transparent 47%,#ac8bff 49%,transparent 52%);background-size:100px 100px}
+header{text-align:center;padding:26px;border-bottom:1px solid var(--line);background:#091221cc}h1{margin:0;color:#e8f8ff;letter-spacing:4px;text-shadow:0 0 20px #4dafff55}header p{color:#8daed2;margin:7px 0 0}main{max-width:1100px;margin:25px auto;padding:0 14px}.card{background:linear-gradient(145deg,#101a2d,#0a1020);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 16px 40px #0004}h2{color:#c9eaff;margin:0 0 14px}input,select,button,textarea{font:inherit;padding:11px 12px;border-radius:10px;border:1px solid #304968;background:#080e1c;color:white;margin:5px 0;width:100%;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #65dcff1e}button{background:linear-gradient(100deg,#367bff,#8258f6);border:0;font-weight:800;cursor:pointer}button:hover{filter:brightness(1.12)}.secondary{background:#172944;border:1px solid #38577a}.hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.item{background:linear-gradient(150deg,#111e34,#0b1221);border:1px solid #304a6e;border-radius:14px;padding:14px}.muted,.small{color:var(--muted)}.small{font-size:12px}.msg{background:#16253d;padding:10px;border:1px solid #2a4568;border-radius:10px;margin:7px 0;overflow-wrap:anywhere}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.danger{background:linear-gradient(100deg,#9d2846,#e34461)}.url-field{font-size:12px}.sale-meta{color:#9fb6d4;font-size:12px;overflow-wrap:anywhere}@media(max-width:600px){.row{flex-direction:column}.row>*{width:100%}}
+</style></head><body>
+<header><h1>ZYDRIS HP</h1><p class="muted">Panel administrador</p></header><main>
+<section id="auth" class="card"><h2>Acceso administrador</h2><input id="email" type="email" placeholder="Correo administrador"><input id="password" type="password" placeholder="Contraseña"><button id="login">Entrar</button><p id="note" class="small">Ingresá con el usuario administrador creado en Supabase.</p></section>
+<section id="dashboard" class="hidden">
+<div class="card row"><div><b>Panel de control</b><div class="small" id="who"></div></div><button id="logout" class="secondary">Cerrar sesión</button></div>
+<div class="card"><h2>Estado del soporte</h2><p id="supportText">Cargando…</p><button id="toggle">Cambiar disponibilidad</button></div>
+<div class="card"><h2>🛠️ Modo mantenimiento de la tienda</h2><p class="small">Al activarlo, una pantalla cubrirá toda la tienda y los clientes no podrán utilizarla. Podés desactivarlo cuando quieras.</p><textarea id="maintenanceMessageInput" rows="3" placeholder="Ej.: Estamos realizando tareas de mantenimiento. Volvemos pronto."></textarea><p id="maintenanceState" class="small">Consultando estado…</p><button id="maintenanceToggle">Activar mantenimiento</button></div>
+<div class="card"><h2>🎟️ Crear cupones de descuento</h2>
+<div class="grid">
+<input id="couponNewCode" maxlength="32" placeholder="Código (ej.: DD103)">
+<input id="couponDiscount" type="number" min="1" step="1" placeholder="Descuento en pesos (ej.: 500)">
+<input id="couponStock" type="number" min="1" step="1" placeholder="Cantidad de personas (ej.: 3)">
+</div>
+<button id="createCoupon">Crear cupón</button><p class="small">El descuento es un monto fijo en pesos argentinos (ARS). Cada usuario puede reclamar cada cupón una sola vez. El sistema descuenta una existencia automáticamente al reclamarlo.</p>
+<div id="couponList" class="grid">Cargando cupones…</div>
+</div>
+<div class="card"><h2>👥 Cupones reclamados</h2><div id="couponClaims">Cargando reclamos…</div></div>
+<div class="card"><h2>Agregar venta de diamantes</h2>
+<div class="grid">
+<input id="saleCustomer" placeholder="Nombre o correo del cliente">
+<input id="salePackage" placeholder="Ej.: 310 diamantes">
+<input id="salePrice" type="number" min="1" step="1" placeholder="Precio en pesos argentinos (ARS)">
+<select id="saleRegion"><option>LATAM</option><option>Brasil</option><option>Estados Unidos</option><option>Otra región</option></select><select id="saleMethod"><option value="Mercado Pago">Mercado Pago (LATAM)</option><option value="Soporte">Soporte (otras regiones)</option></select><input id="saleLink" class="url-field" type="url" placeholder="Link de cobro / transferencia (opcional)">
+<select id="salePaid"><option value="pending">Pago pendiente</option><option value="paid">Pagado</option></select>
+<select id="saleDelivered"><option value="pending">Entrega pendiente</option><option value="processing">En proceso</option><option value="delivered">Entregado</option></select>
+</div>
+<button id="addSale">Agregar venta</button><p class="small">Las ventas manuales se guardan como pedidos en Supabase. Para asociarlas a una cuenta de cliente, esa persona debe iniciar sesión y generar su pedido desde la tienda.</p>
+<div class="card"><h2>🚀 Publicar venta en la tienda</h2><p class="small">Estas ofertas aparecen automáticamente en la tienda para que los clientes las compren.</p><button id="publishSale">Publicar venta</button><div id="publishedSales" class="grid">Cargando ventas publicadas…</div></div>
+</div>
+<div class="card"><h2>🟦 Gestión de Robux (Roblox)</h2><p class="small">Publicá paquetes de Robux por separado. Se mostrarán únicamente cuando el cliente elija Roblox en la tienda.</p><div class="grid"><input id="robuxAmount" placeholder="Cantidad de Robux (ej. 400 Robux)"><input id="robuxPrice" type="number" min="1" step="1" placeholder="Precio en ARS"><input id="robuxLink" type="url" class="url-field" placeholder="Link de pago para este paquete"></div><button id="publishRobux">Publicar paquete de Robux</button><div id="robuxPublished" class="grid">Cargando paquetes de Robux…</div></div>
+<div class="card"><h2>Pedidos y ventas</h2><div id="orders" class="grid">Cargando pedidos…</div></div>
+<div class="card"><h2>Mensajes de clientes</h2><div id="messages">Cargando mensajes…</div></div>
+</section></main>
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const URL='https://sljxvffppvhbfralcclx.supabase.co';const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsanh2ZmZwcHZoYmZyYWxjY2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5MzM5MzYsImV4cCI6MjExMDUwOTkzNn0.CJ8pxJkAzHo9czDW6DMgaVhO2EbPu0SGaKjCiBL-Dnc';const db=createClient(URL,KEY);const $=id=>document.getElementById(id);let user=null,online=true;
+function safeUrl(s){let v=String(s||'');return /^https?:/i.test(v)?esc(v):'#'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('login').onclick=async()=>{let {data,error}=await db.auth.signInWithPassword({email:$('email').value,password:$('password').value});if(error){$('note').textContent=error.message;return}user=data.user;let {data:admin,error:e}=await db.from('admins').select('user_id').eq('user_id',user.id).maybeSingle();if(e||!admin){await db.auth.signOut();$('note').textContent='Esta cuenta no tiene permisos de administrador.';return}show()};
+async function show(){$('auth').classList.add('hidden');$('dashboard').classList.remove('hidden');$('who').textContent=user.email;await Promise.all([loadOrders(),loadMessages(),loadSupport(),loadCoupons(),loadCouponClaims(),loadPublishedSales()]);db.channel('admin-live').on('postgres_changes',{event:'*',schema:'public',table:'orders'},loadOrders).on('postgres_changes',{event:'*',schema:'public',table:'messages'},loadMessages).on('postgres_changes',{event:'*',schema:'public',table:'support_status'},loadSupport).on('postgres_changes',{event:'*',schema:'public',table:'coupons'},loadCoupons).on('postgres_changes',{event:'*',schema:'public',table:'coupon_claims'},loadCouponClaims).on('postgres_changes',{event:'*',schema:'public',table:'published_sales'},loadPublishedSales).subscribe()}
+$('logout').onclick=async()=>{await db.auth.signOut();location.reload()};
+async function loadOrders(){let {data,error}=await db.from('orders').select('*').order('created_at',{ascending:false});$('orders').innerHTML=error?esc(error.message):(data||[]).map(o=>`<div class="item"><b>${esc(o.order_code)}</b><p>${esc(o.customer_name)}<br>${esc(o.package_name)} · ${esc(o.region)}</p><div class="sale-meta">Método: ${esc(o.payment_method||"No indicado")}<br>Link actual: ${o.payment_link?`<a href="${safeUrl(o.payment_link)}" target="_blank" rel="noopener">Abrir link de cobro</a>`:"Sin link cargado"}</div><label class="small">Link de cobro/transferencia</label><input type="url" data-id="${o.id}" data-col="payment_link" value="${esc(o.payment_link||"")}" placeholder="Pegá el link de pago aquí"><label class="small">Pago</label><select data-id="${o.id}" data-col="payment_status"><option ${o.payment_status==='pending'?'selected':''} value="pending">Pendiente de pago</option><option ${o.payment_status==='paid'?'selected':''} value="paid">Pagado</option></select><label class="small">Estado de entrega</label><select data-id="${o.id}" data-col="delivery_status"><option ${o.delivery_status==='pending'?'selected':''} value="pending">Pendiente</option><option ${o.delivery_status==='processing'?'selected':''} value="processing">En proceso</option><option ${o.delivery_status==='delivered'?'selected':''} value="delivered">Entregado</option></select><button data-save="${o.id}">Guardar estado</button><button class="danger" data-delete="${o.id}">🗑 Eliminar venta</button></div>`).join('')||'No hay pedidos todavía.'}
+$('orders').onchange=()=>{};$('orders').onclick=async e=>{
+let del=e.target.closest('button[data-delete]');
+if(del){if(!confirm('¿Eliminar esta venta definitivamente?'))return;let {error}=await db.from('orders').delete().eq('id',del.dataset.delete);if(error)alert(error.message);else loadOrders();return}
+let b=e.target.closest('button[data-save]');if(!b)return;let id=b.dataset.save;let values={};$('orders').querySelectorAll(`select[data-id="${id}"],input[data-id="${id}"]`).forEach(s=>values[s.dataset.col]=s.value);let {error}=await db.from('orders').update(values).eq('id',id);if(error)alert(error.message);else loadOrders()};
+$('saleRegion').onchange=()=>{$('saleMethod').value=$('saleRegion').value==='LATAM'?'Mercado Pago':'Soporte'};
+$('saleMethod').onchange=()=>{$('saleMethod').value=$('saleRegion').value==='LATAM'?'Mercado Pago':'Soporte'};
+$('addSale').onclick=async()=>{
+let customer=$('saleCustomer').value.trim(),pkg=$('salePackage').value.trim();
+if(!customer||!pkg){alert('Completá el cliente y el paquete.');return}
+let code='ZH-'+Math.random().toString(36).slice(2,8).toUpperCase();
+let region=$('saleRegion').value,method=$('saleMethod').value,link=$('saleLink').value.trim();let {error}=await db.from('orders').insert({order_code:code,customer_name:customer,package_name:pkg,region,payment_method:method,payment_link:link||null,payment_status:$('salePaid').value,delivery_status:$('saleDelivered').value});
+if(error)alert('No se pudo agregar la venta: '+error.message);else{$('saleCustomer').value='';$('salePackage').value='';$('saleLink').value='';alert('Venta agregada. Código: '+code);loadOrders()}
+};
+
+// Ofertas públicas que se muestran en la tienda. Se gestionan aparte de los pedidos.
+$('publishSale').onclick=async()=>{const diamonds=$('salePackage').value.trim(),price=Number($('salePrice').value),region=$('saleRegion').value,link=$('saleLink').value.trim();if(!diamonds||!Number.isInteger(price)||price<1||!/^https?:\/\//i.test(link)){alert('Completá diamantes, precio y un link de pago válido.');return}const {error}=await db.from('published_sales').insert({game:'FREE_FIRE',diamonds,price_ars:price,region,payment_link:link,active:true,created_by:user.id});if(error){alert('No se pudo publicar: '+error.message);return} $('salePackage').value='';$('salePrice').value='';$('saleLink').value='';alert('Venta publicada en la tienda.');await loadPublishedSales()};
+async function loadPublishedSales(){const {data,error}=await db.from('published_sales').select('*').order('created_at',{ascending:false});if(error){$('publishedSales').textContent='Error cargando ofertas: '+error.message;return}const rows=(data||[]).filter(s=>(s.game||'FREE_FIRE')==='FREE_FIRE');$('publishedSales').innerHTML=rows.map(s=>`<div class="item"><b>${esc(s.diamonds)}</b><p>$${Number(s.price_ars).toLocaleString('es-AR')} ARS · ${esc(s.region)}<br><span class="small">${s.active?'🟢 Publicada':'⚪ Pausada'}</span><br><a href="${safeUrl(s.payment_link)}" target="_blank" rel="noopener">Ver link de pago</a></p><button class="danger" data-sale-delete="${esc(s.id)}">Eliminar publicación</button></div>`).join('')||'No hay publicaciones.';await loadRobuxPublished()}
+$('publishedSales').onclick=async e=>{const b=e.target.closest('[data-sale-delete]');if(!b)return;if(!confirm('¿Eliminar esta publicación de la tienda?'))return;const {error}=await db.from('published_sales').delete().eq('id',b.dataset.saleDelete);if(error)alert('No se pudo eliminar: '+error.message);else await loadPublishedSales()};
+$('publishRobux').onclick=async()=>{const amount=$('robuxAmount').value.trim(),price=Number($('robuxPrice').value),link=$('robuxLink').value.trim();if(!amount||!Number.isInteger(price)||price<1||!/^https?:\/\//i.test(link)){alert('Completá cantidad, precio y un link de pago válido.');return}const {error}=await db.from('published_sales').insert({game:'ROBLOX',diamonds:amount,price_ars:price,region:'ROBLOX',payment_link:link,active:true,created_by:user.id});if(error){alert('No se pudo publicar el paquete: '+error.message);return}$('robuxAmount').value='';$('robuxPrice').value='';$('robuxLink').value='';alert('Paquete de Robux publicado.');await loadPublishedSales()};
+async function loadRobuxPublished(){const {data,error}=await db.from('published_sales').select('*').order('created_at',{ascending:false});if(error){$('robuxPublished').textContent='Error: '+error.message;return}const rows=(data||[]).filter(s=>s.game==='ROBLOX');$('robuxPublished').innerHTML=rows.map(s=>`<div class="item"><b>${esc(s.diamonds)}</b><p>$${Number(s.price_ars).toLocaleString('es-AR')} ARS · <span class="small">Roblox</span></p><button class="danger" data-robux-delete="${esc(s.id)}">Eliminar paquete</button></div>`).join('')||'No hay paquetes de Robux publicados.'}
+$('robuxPublished').onclick=async e=>{const b=e.target.closest('[data-robux-delete]');if(!b)return;if(!confirm('¿Eliminar este paquete de Robux?'))return;const {error}=await db.from('published_sales').delete().eq('id',b.dataset.robuxDelete);if(error)alert(error.message);else await loadPublishedSales()};
+
+// Administración de cupones y listado de clientes que los reclamaron.
+$('couponNewCode').addEventListener('input',()=>{$('couponNewCode').value=$('couponNewCode').value.toUpperCase().replace(/\s+/g,'')});
+$('createCoupon').onclick=async()=>{
+ const code=$('couponNewCode').value.trim().toUpperCase();
+ const discount=Number($('couponDiscount').value),stock=Number($('couponStock').value);
+ if(!/^[A-Z0-9_-]{3,32}$/.test(code)||!Number.isInteger(discount)||discount<1||!Number.isInteger(stock)||stock<1){alert('Ingresá un código válido, un descuento en pesos mayor a 0 y una cantidad de existencias mayor a 0.');return}
+ $('createCoupon').disabled=true;
+ const {error}=await db.from('coupons').insert({code,discount_amount:discount,max_claims:stock,claimed_count:0,active:true,created_by:user.id});
+ $('createCoupon').disabled=false;
+ if(error){alert(error.code==='23505'?'Ese código ya existe. Elegí otro.':error.message);return}
+ $('couponNewCode').value='';$('couponDiscount').value='';$('couponStock').value='';alert('Cupón creado correctamente.');await loadCoupons();
+};
+async function loadCoupons(){
+ const {data,error}=await db.from('coupons').select('*').order('created_at',{ascending:false});
+ if(error){$('couponList').textContent=error.message;return}
+ $('couponList').innerHTML=(data||[]).map(c=>`<div class="item"><b>${esc(c.code)}</b><p>Descuento: $${Number(c.discount_amount).toLocaleString('es-AR')} ARS<br>Reclamados: ${c.claimed_count} / ${c.max_claims}<br>Disponibles: ${Math.max(0,c.max_claims-c.claimed_count)}<br>Estado: ${c.active?'Activo':'Pausado'}</p><button data-coupon-toggle="${c.id}" data-active="${c.active}">${c.active?'Pausar':'Activar'}</button><button class="danger" data-coupon-delete="${c.id}">Eliminar cupón</button></div>`).join('')||'Todavía no creaste cupones.';
+}
+$('couponList').onclick=async e=>{
+ const t=e.target.closest('[data-coupon-toggle]');
+ if(t){const {error}=await db.from('coupons').update({active:t.dataset.active!=='true'}).eq('id',t.dataset.couponToggle);if(error)alert(error.message);await loadCoupons();return}
+ const d=e.target.closest('[data-coupon-delete]');
+ if(d){if(!confirm('¿Eliminar este cupón? También se eliminará su historial de reclamos.'))return;const {error}=await db.from('coupons').delete().eq('id',d.dataset.couponDelete);if(error)alert(error.message);await loadCoupons();await loadCouponClaims()}
+};
+async function loadCouponClaims(){
+ const {data,error}=await db.from('coupon_claims').select('id,customer_email,created_at,coupons(code,discount_amount)').order('created_at',{ascending:false});
+ $('couponClaims').innerHTML=error?esc(error.message):(data||[]).map(c=>`<div class="msg"><b>${esc(c.coupons?.code||'Cupón')}</b> · ${esc(c.customer_email||'Usuario')}<br>Descuento: $${Number(c.coupons?.discount_amount||0).toLocaleString('es-AR')} ARS<br><span class="small">${new Date(c.created_at).toLocaleString('es-AR')}</span></div>`).join('')||'Todavía no hay cupones reclamados.';
+}
+
+async function loadMessages(){let {data,error}=await db.from('messages').select('*').order('created_at',{ascending:true});$('messages').innerHTML=error?esc(error.message):(data||[]).map(m=>`<div class="item"><div class="msg"><b>${m.sender==='admin'?'Soporte':'Cliente'} · ${esc(m.customer_name)}</b><br>${esc(m.message)}</div><textarea id="reply-${m.user_id}" rows="2" placeholder="Responder a este cliente…"></textarea><button data-reply="${m.user_id}" data-name="${esc(m.customer_name)}">Enviar respuesta</button></div>`).join('')||'Todavía no hay mensajes.'}
+$('messages').onclick=async e=>{let b=e.target.closest('button[data-reply]');if(!b)return;let uid=b.dataset.reply,ta=$('reply-'+uid),message=ta.value.trim();if(!message)return;let {error}=await db.from('messages').insert({customer_name:b.dataset.name,message,sender:'admin',user_id:uid});if(error)alert(error.message);else{ta.value='';loadMessages()}};
+let maintenanceEnabled=false;
+async function loadSupport(){let {data,error}=await db.from('support_status').select('is_online,maintenance_enabled,maintenance_message').eq('id',1).maybeSingle();if(error){$('supportText').textContent=error.message;return}online=data?.is_online??true;maintenanceEnabled=!!data?.maintenance_enabled;$('supportText').textContent=online?'🟢 En línea':'🟡 Ausente';$('maintenanceState').textContent=maintenanceEnabled?'🔴 Mantenimiento ACTIVADO':'🟢 Mantenimiento desactivado';$('maintenanceToggle').textContent=maintenanceEnabled?'Desactivar mantenimiento':'Activar mantenimiento';$('maintenanceMessageInput').value=data?.maintenance_message||''}
+$('toggle').onclick=async()=>{let {error}=await db.from('support_status').update({is_online:!online}).eq('id',1);if(error)alert(error.message);else loadSupport()};
+$('maintenanceToggle').onclick=async()=>{const message=$('maintenanceMessageInput').value.trim();if(!maintenanceEnabled&&!message){alert('Escribí el mensaje que verán los clientes.');return}const nextState=!maintenanceEnabled;const {error}=await db.from('support_status').update({maintenance_enabled:nextState,maintenance_message:message||'Estamos realizando mejoras. Volvé a visitarnos pronto.'}).eq('id',1);if(error){alert('No se pudo cambiar el mantenimiento: '+error.message);return}await loadSupport();alert(nextState?'Mantenimiento activado en la tienda.':'Mantenimiento desactivado.')};
+</script></body></html>
